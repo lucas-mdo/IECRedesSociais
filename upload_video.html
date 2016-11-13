@@ -1,0 +1,63 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>YouTube API Uploads via CORS</title>
+    <link rel="stylesheet" href="css/upload_video.css">
+    <link rel='stylesheet' href='http://fonts.googleapis.com/css?family=Open+Sans' type='text/css'>
+  </head>
+  <body>
+    <span id="signinButton" class="pre-sign-in">
+      <span
+        class="g-signin"
+        data-callback="signinCallback"
+        data-clientid="125016922965-ae7tsoddu2cp3jm58t1bqve8bm8kidtb.apps.googleusercontent.com"
+        data-cookiepolicy="single_host_origin"
+        data-scope="https://www.googleapis.com/auth/youtube.upload https://www.googleapis.com/auth/youtube">
+      </span>
+    </span>
+
+    <div class="post-sign-in">
+      <div>
+        <img id="channel-thumbnail">
+        <span id="channel-name"></span>
+      </div>
+
+      <div>
+        <label for="title">Titulo:</label>
+        <input id="title" type="text">
+      </div>
+      <div>
+        <label for="description">Descrição:</label>
+        <textarea id="description">Aqui você digita a descrição padrão do vídeo</textarea>
+      </div>
+      <div>
+        <label for="privacy-status">Status de Privacidade:</label>
+        <select id="privacy-status">
+          <option>public</option>
+          <option>unlisted</option>
+          <option>private</option>
+        </select>
+      </div>
+
+      <div>
+        <input input type="file" id="file" class="button" accept="video/*"><br/><br/>
+        <button id="button">Carregar Arquivo</button>
+      <div class="during-upload">
+        <p><span id="percent-transferred"></span>% done (<span id="bytes-transferred"></span>/<span id="total-bytes"></span> bytes)</p>
+        <progress id="upload-progress" max="1" value="0"></progress>
+      </div>
+
+      <div class="post-upload">
+        <p>Vídeo enviado com o id: <span id="video-id"></span>.</p>
+        <ul id="post-upload-status"></ul>
+        <div id="player"></div>
+      </div>
+    </div>
+
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script src="//apis.google.com/js/client:plusone.js"></script>
+    <script src="js/cors_upload.js"></script>
+    <script src="js/upload_video.js"></script>
+  </body>
+</html>
