@@ -1,94 +1,184 @@
-<!doctype html>
 <html>
 <head>
-<meta charset="utf-8">
-<title>Integração Google</title>
-<meta name="google-signin-client_id" content="125016922965-ae7tsoddu2cp3jm58t1bqve8bm8kidtb.apps.googleusercontent.com">
-<link href="css/estilos.css" rel="stylesheet" type="text/css" media="all">
-<script src="https://apis.google.com/js/client:platform.js?onload=renderButton" async defer></script>
-<script src="js/jquery.min.js" type="text/javascript" language="javascript"></script>
+     <meta name="google-signin-client_id" content="125016922965-ae7tsoddu2cp3jm58t1bqve8bm8kidtb.apps.googleusercontent.com">
+     <meta name="google-signin-fetch_basic_profile" content="false">
+     <meta name="google-signin-scope" content="profile email">
 
-<script>
+     <title>Cerveja Zodíaca</title>
 
-//############ INTEGRANDO GOOGLE ###############
+     <!-- Bootstrap -->
+     <link href="css/bootstrap.min.css" rel="stylesheet">
+     <!-- Template -->
+     <link href="css/cover.css" rel="stylesheet">
+     <!-- jQuery -->
+     <script src="js/jquery.min.js" type="text/javascript" language="javascript"></script>
+     <script>
+        function requestEmailData() {
+          gapi.client.load('oauth2', 'v2', function() {
+            gapi.client.oauth2.userinfo.get().execute(function(resp) {
+              //DEBUG - Shows user email
+              console.log(resp.email);
+            })
+          });
+        }
 
-function onSuccess(googleUser) {
-	
-	var profile = googleUser.getBasicProfile();
-	
-	$('.idUser').html(profile.getId());
-	$('.nomeUser').html(profile.getName());
-	$('.emailUser').html(profile.getEmail());
-	$('.imgUser').attr("src",profile.getImageUrl());	
-	
-	console.log('Logado como: ' + googleUser.getBasicProfile().getName());
-	$("#login").css("display","none");
-	$(".carregando").css("display","block"); 
-  
-	gapi.client.load('plus','v1', function(){
-	 var request = gapi.client.plus.people.list({
-	   'userId': 'me',
-	   'collection': 'visible'
-	 });
-	 request.execute(function(resp) {
-		console.log('Número de pessoas:' + resp.totalItems);
-		
-		var htmlLista = "";
-		$.each(resp.items, function (index, value) {
-			htmlLista+= '<strong>ID: </strong>'+value.id+'<br/><strong>Nome: </strong>'+value.displayName+'<br/><strong>URL: </strong>'+value.url+'<br/><strong>Foto: </strong><img src="'+value.image.url+'"><br/><hr><br/>';
-		});
-		
-		$(".listaAmigos").html(htmlLista);
-		
-		$(".carregando").css("display","none");
-		$("#app").css("display","block");
-	 });
-	});  
-  
-}
-function onFailure(error) {
-  console.log(error);
-}
-function renderButton() {
-  gapi.signin2.render('my-signin2', {
-	'scope': 'profile email https://www.googleapis.com/auth/plus.login https://www.googleapis.com/auth/plus.me https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/youtube https://www.googleapis.com/auth/youtube.upload',
-	'width': 240,
-	'height': 50,
-	'longtitle': true,
-	'theme': 'dark',
-	'onsuccess': onSuccess,
-	'onfailure': onFailure
-  });
-}
+        function requestProfileData() {
+          gapi.client.load('plus', 'v1', function() {
+            gapi.client.plus.people.get( {'userId' : 'me'} ).execute(function(resp) {
+              // DEBUG - Shows profile information
+              console.log(resp);
 
-$(document).ready(function(e) {
+              //If no information returned, error
+              if (resp == null)
+              {
+                $('.UserTitle').html("Não foi possível coletar as informações de usuário.");
+                return;
+              }
+                  //Get user full name
+              var displayname = resp.displayName;
+              var firstName;
 
-});
-</script>
+              //Get first name
+              if (displayname != null)
+              {
+                firstName = displayname.split(' ')[0];
+                $('.UserTitle').html(firstName + ", a cerveja que mais combina com você é:");
+              }
 
+              //Get birthday
+              var birthday = resp.birthday;
+
+              if (birthday == null) {
+                birthday = '0000-00-00'
+              }
+
+              //Parse and get day and month
+              var day = birthday.split('-')[2];
+              var month = birthday.split('-')[1];
+
+              // DEBUG - Shows month
+              console.log("day=" + day + " and month=" + month);
+
+              //Decide what sign the user belongs to
+              var result = 0;
+
+              switch (month){
+                case "01": if (day < "20") result = 12; else result = 1; break;
+                case "02": if (day < "19") result = 1; else result = 2; break;
+                case "03": if (day < "21") result = 2; else result = 3; break;
+                case "04": if (day < "20") result = 3; else result = 4; break;
+                case "05": if (day < "21") result = 4; else result = 5; break;
+                case "06": if (day < "22") result = 5; else result = 6; break;
+                case "07": if (day < "23") result = 6; else result = 7; break;
+                case "08": if (day < "23") result = 7; else result = 8; break;
+                case "09": if (day < "23") result = 8; else result = 9; break;
+                case "10": if (day < "23") result = 9; else result = 10; break;
+                case "11": if (day < "22") result = 10; else result = 11; break;
+                case "12": if (day < "22") result = 11; else result = 12; break;
+                default: result = 0;
+              }
+
+              //Set img source based on birthday
+              var imagesUrls = [
+                "http://imageshack.com/a/img922/94/5jq8A2.jpg",
+                "http://imageshack.com/a/img924/7728/4WyiuJ.jpg",
+                "http://imageshack.com/a/img924/5116/SDosrA.jpg",
+                "http://imageshack.com/a/img922/2213/ywdDnX.jpg",
+                "http://imageshack.com/a/img924/5205/AaeeYT.jpg",
+                "http://imageshack.com/a/img921/9950/dFed4E.jpg",
+                "http://imageshack.com/a/img923/2998/ibU7E7.jpg",
+                "http://imageshack.com/a/img923/2813/CtsZ5H.jpg",
+                "http://imageshack.com/a/img924/633/TlpbY8.jpg",
+                "http://imageshack.com/a/img921/2579/0rwYJ8.jpg",
+                "http://imageshack.com/a/img921/9573/mbpcDI.jpg",
+                "http://imageshack.com/a/img921/8365/vb3orj.jpg",
+                "http://imageshack.com/a/img923/7218/KIZ38I.jpg"
+              ];
+
+              var imgBeer = document.getElementById("imgBeer");
+              imgBeer.style.display = "block";
+              imgBeer.src = imagesUrls[result];
+
+              //Show share button
+              var share = document.getElementById("sharebtn");
+              share.style.display = "block";
+
+              // Hide initial screen
+              $(".loginInit").addClass('hidden');
+
+
+              //NOT WORKING
+              //var share2 = document.getElementById("sharelink");
+              //share2.setAttribute("href", imagesUrls[result]);
+              //console.log("link=" + share2.href);
+
+            })
+          });
+        }
+
+        function onSuccess() {
+          gapi.load('client', function() {
+            requestEmailData();
+            requestProfileData();
+          });
+        }
+    </script>
 </head>
-
 <body>
-    <div id="login">
-        <h1>Login Google</h1>
-        <div id="my-signin2"></div>
-    </div>
+    <div class="site-wrapper">
+      <div class="site-wrapper-inner">
+        <div class="cover-container">
+          <div class="masthead clearfix">
+            <div class="inner">
+              <h3 class="masthead-brand">Cerveja Zodíaca</h3>
+              <nav>
+                <ul class="nav masthead-nav">
+                  <li class="active"><a href="#">Início</a></li>
+                  <li><a href="https://github.com/DLucasgf/IECRedesSociais">Github</a></li>
+                </ul>
+              </nav>
+            </div>
+          </div>
 
-    <div id="app" style="display:none;">
-        <h1>Dados do Usuários</h1>
-        <p>ID: <span class="idUser"></span></p>
-        <p>Nome: <span class="nomeUser"></span></p>
-        <p>Email: <span class="emailUser"></span></p>
-		<p>Foto: <img class="imgUser" src=""/></p>               
-        
-        <h1>Lista de Amigos Visíveis</h1>
-        
-        <div class="listaAmigos">
+          <div class="inner cover" id="loginInit">
+            <div>
+              <h1 class="cover-heading loginInit">Qual a sua cerveja?</h1>
+              <p class="lead loginInit">Entre com sua conta do Google e descubra qual é a sua Cerveja Zodíaca.</p>
+              <p class="lead col-md-5 text-center loginInit">
+                <div class="g-signin2 loginInit" data-onsuccess="onSuccess"></div>
+              </p>
+            </div>
+
+            <div class="inner cover" id="cervejaResultado">
+              <div>
+                <p class="lead UserTitle"></p>
+                <p class="lead"><img class="lead" id="imgBeer" src="" width="100%" height="60%" style="display:none" /> </p>
+                <p class="lead">
+                  <div id="sharebtn" style="display:none">
+                    <link id="sharelink" rel="canonical" href="http://st2.depositphotos.com/3796667/6855/v/950/depositphotos_68558873-Set-of-symbolical-images-of.jpg" />
+                    <script src="https://apis.google.com/js/platform.js" async defer> {lang: 'pt-BR'}
+                    </script>
+                    <div class="g-plus" data-action="share" data-annotation="none" data-height="24"></div>
+                </div>
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="mastfoot">
+            <div class="inner">
+              <p>Cover template for <a href="http://getbootstrap.com">Bootstrap</a></p>
+            </div>
+          </div>
         </div>
-                             
+      </div>
     </div>
-    
-    <div class="carregando" style="display:none;"></div>
 
+
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="js/bootstrap.min.js"></script>
 </body>
 </html>
